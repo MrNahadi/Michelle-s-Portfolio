@@ -253,7 +253,7 @@
     measure();
   }
 
-  /* ---------- Work tiles: moving-still preview, rose pill reveal, Reel player ---------- */
+  /* ---------- Work tiles: moving-still preview, rose pill reveal, video player ---------- */
   function initWork() {
     const tiles = $$('.work-tile');
     if (!tiles.length) return;
@@ -279,22 +279,24 @@
     tiles.forEach((t) => rio.observe(t));
 
     const dlg = $('#reel-dialog');
-    if (!dlg || typeof dlg.showModal !== 'function') return; // links fall back to Instagram
+    if (!dlg || typeof dlg.showModal !== 'function') return; // links fall back to YouTube
     const frame = $('iframe', dlg);
     const title = $('#reel-title', dlg);
     const open = $('#reel-open', dlg);
 
+    // Only tiles with data-youtube play in place. Instagram's embed sends viewers to Instagram to press play,
+    // and Shorts with licensed music refuse to embed, so those tiles stay plain links that open in a new tab.
     tiles.forEach((t) => {
       const link = $('.tile-link', t);
-      if (!link || !t.dataset.reel) return;
+      if (!link || !t.dataset.youtube) return;
       link.addEventListener('click', (e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey) return;
         e.preventDefault();
-        const id = t.dataset.reel;
+        const id = t.dataset.youtube;
         title.textContent = link.textContent;
-        frame.title = `Instagram Reel: ${link.textContent}`;
-        frame.src = `https://www.instagram.com/reel/${id}/embed/`;
-        open.href = `https://www.instagram.com/reel/${id}/`;
+        frame.title = `YouTube video: ${link.textContent}`;
+        frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+        open.href = link.href;
         dlg.showModal();
         lenis?.stop();
       });
